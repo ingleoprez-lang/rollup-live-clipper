@@ -1,22 +1,109 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Rollup Live Clipper</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RollupTV Clipper</title>
+
   <style>
     body {
-      background: black;
-      color: lime;
-      font-family: monospace;
+      background: #0b0b0b;
+      color: white;
+      font-family: system-ui, -apple-system, sans-serif;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       height: 100vh;
       margin: 0;
-      font-size: 40px;
+    }
+
+    .container {
+      background: #141414;
+      padding: 40px;
+      border-radius: 16px;
+      width: 320px;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(0,0,0,0.6);
+    }
+
+    h1 {
+      margin-bottom: 24px;
+      font-size: 22px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 80px;
+      margin-bottom: 16px;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      resize: none;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      font-size: 18px;
+      background: #e50914;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .status {
+      margin-top: 12px;
+      font-size: 14px;
+      opacity: 0.8;
+      min-height: 18px;
     }
   </style>
 </head>
+
 <body>
-  NEW CLIPPER DEPLOY TEST
+
+  <div class="container">
+    <h1>RollupTV Clipper</h1>
+
+    <textarea id="note" placeholder="Optional note"></textarea>
+
+    <button onclick="markClip()">🔴 MARK CLIP</button>
+
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    function markClip() {
+      const note = document.getElementById("note").value.trim();
+      const status = document.getElementById("status");
+
+      fetch("https://script.google.com/macros/s/AKfycbwYghSqYITZPtP8PU-7DTLKhWoO3flrfeG1cmu0duqvi4xK-rjdQuA39mcLV2IpO6xLLw/exec", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: `note=${encodeURIComponent(note)}`
+      })
+      .then(response => response.text())
+      .then(text => {
+        if (text.includes("OK")) {
+          status.textContent = "Clip marked successfully.";
+          document.getElementById("note").value = "";
+        } else {
+          status.textContent = text;
+        }
+      })
+      .catch(() => {
+        status.textContent = "Error sending clip.";
+      });
+    }
+  </script>
+
 </body>
 </html>
