@@ -21,45 +21,47 @@
       background: #141414;
       padding: 40px;
       border-radius: 16px;
-      width: 320px;
+      width: 340px;
       text-align: center;
       box-shadow: 0 0 40px rgba(0,0,0,0.6);
     }
 
     h1 {
-      margin-bottom: 24px;
+      margin-bottom: 25px;
       font-size: 22px;
+      letter-spacing: 1px;
     }
 
     textarea {
       width: 100%;
-      height: 80px;
-      margin-bottom: 16px;
-      padding: 10px;
+      height: 100px;
+      padding: 12px;
       border-radius: 8px;
       border: none;
       resize: none;
+      margin-bottom: 16px;
       font-size: 14px;
     }
 
     button {
       width: 100%;
-      padding: 16px;
-      font-size: 18px;
+      padding: 14px;
       background: #e50914;
       color: white;
       border: none;
-      border-radius: 12px;
+      border-radius: 10px;
+      font-size: 16px;
       cursor: pointer;
+      transition: 0.2s;
     }
 
-    button:active {
-      transform: scale(0.98);
+    button:hover {
+      opacity: 0.9;
     }
 
     .status {
       margin-top: 12px;
-      font-size: 14px;
+      font-size: 13px;
       opacity: 0.8;
       min-height: 18px;
     }
@@ -71,24 +73,55 @@
   <div class="container">
     <h1>RollupTV Clipper</h1>
 
-    <textarea id="note" placeholder="Optional note"></textarea>
+    <textarea id="note" placeholder="Write clip note..."></textarea>
 
-    <button onclick="markClip()">🔴 MARK CLIP</button>
+    <button onclick="markClip()">Mark Clip</button>
 
     <div class="status" id="status"></div>
   </div>
 
   <script>
+    function getEasternTime() {
+      const now = new Date();
+
+      const optionsDate = {
+        timeZone: "America/New_York",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      };
+
+      const optionsTime = {
+        timeZone: "America/New_York",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true
+      };
+
+      const date = new Intl.DateTimeFormat("en-US", optionsDate).format(now);
+      const time = new Intl.DateTimeFormat("en-US", optionsTime).format(now);
+
+      return { date, time };
+    }
+
     function markClip() {
       const note = document.getElementById("note").value.trim();
       const status = document.getElementById("status");
+
+      if (!note) {
+        status.textContent = "Write something first.";
+        return;
+      }
+
+      const eastern = getEasternTime();
 
       fetch("https://script.google.com/macros/s/AKfycbwYghSqYITZPtP8PU-7DTLKhWoO3flrfeG1cmu0duqvi4xK-rjdQuA39mcLV2IpO6xLLw/exec", {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
         },
-        body: `note=${encodeURIComponent(note)}`
+        body: `date=${encodeURIComponent(eastern.date)}&time=${encodeURIComponent(eastern.time)}&note=${encodeURIComponent(note)}`
       })
       .then(response => response.text())
       .then(text => {
@@ -100,7 +133,7 @@
         }
       })
       .catch(() => {
-        status.textContent = "Error sending clip.";
+        status.textContent = "Something went wrong.";
       });
     }
   </script>
